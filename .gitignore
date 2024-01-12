@@ -3,3 +3,12 @@
 /video
 /paln.txt
 /data/
+/valorant_models/
+/valorant_rl_data/
+/valorant_data/
+/val_range_rl_data/
+/val_range_data/
+/.VSCodeCounter/
+/model/
+
+*.wav

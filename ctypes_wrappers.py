@@ -70,11 +70,22 @@ class RAWINPUTHEADER(Struct):
         ("wParam", wts.WPARAM),
     )
 
+class MOUSE_FLAGS(Struct):
+    _fields_ = (
+        ("usButtonFlags", wts.USHORT),
+        ("usButtonData", wts.USHORT),
+    )
+
+class MOUSE_ONION(Uni):
+    _fields_ = (
+        ("ulButtons", wts.ULONG),
+        ("structure", MOUSE_FLAGS),
+    )
 
 class RAWMOUSE(Struct):
     _fields_ = (
         ("usFlags", wts.USHORT),
-        ("ulButtons", wts.ULONG),  # unnamed union: 2 USHORTS: flags, data
+        ("union", MOUSE_ONION),  
         ("ulRawButtons", wts.ULONG),
         ("lLastX", wts.LONG),
         ("lLastY", wts.LONG),
@@ -125,11 +136,39 @@ class MOUSEINPUT(Struct):
         ("dwExtraInfo", cts.POINTER(wts.ULONG)),
     )
 
+class KEYBDINPUT(Struct):
+    _fields_ = (
+        ("wVk", wts.WORD),
+        ("wScan", wts.WORD),
+        ("dwFlags", wts.DWORD),
+        ("time", wts.DWORD),
+        ("dwExtraInfo", cts.POINTER(wts.ULONG)),
+    )
+
+class Onion(Uni):
+    _fields_ = (
+        ("mi", MOUSEINPUT),
+        ("ki", KEYBDINPUT)
+    )
+
 class INPUT(Struct):
     _fields_ = (
         ("type", wts.DWORD),
-        ("mi", MOUSEINPUT),
+        ("u", Onion)
     )
+
+class POINT(Struct):
+    _fields_ = (
+        ("x", wts.LONG),
+        ("y", wts.LONG),
+    )
+
+
+def getCursorPos():
+    pt = POINT()
+    GetCursorPos(cts.byref(pt))
+    return pt.x, pt.y
+
 
 PINPUT = cts.POINTER(INPUT)
 
@@ -190,3 +229,13 @@ PostQuitMessage.restype = None
 SendInput = user32.SendInput
 SendInput.argtypes = (wts.UINT, PINPUT, cts.c_int)
 SendInput.restype = wts.UINT
+
+MapVirtualKeyA = user32.MapVirtualKeyA
+MapVirtualKeyA.argtypes = (wts.UINT, wts.UINT)
+MapVirtualKeyA.restype = wts.UINT
+
+GetCursorPos = user32.GetCursorPos
+GetCursorPos.argtypes = (cts.POINTER(POINT),)
+GetCursorPos.restype = wts.BOOL
+
+

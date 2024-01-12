@@ -51,6 +51,9 @@ is_record_pressed = False
 
 frames = []
 
+positive_trajectories = []
+negative_trajectories = []
+
 keyboard_data = []
 current_frame_keyboard_data = []
 mouse_data = []
@@ -60,11 +63,18 @@ reward = []
 
 
 time_count = 0
-save_count = 11 # implement detector to continue
+
+
+
+save_count = 0 # implement detector to continue
+positive_save_count = 0
+negative_save_count = 0
+
+
 frame_count = 0
 
 
-#recorder = Recorder(current_frame_keyboard_data, current_frame_mouse_data)
+SAVE_PATH = "./val_range_rl_data/"
 
 
 wnd_cls = "SO049572093_RawInputWndClass"
@@ -83,6 +93,8 @@ register_devices(hwnd)
 
 msg = wts.MSG()
 pmsg = cts.byref(msg)
+
+
 
 
 while True: 
@@ -116,6 +128,28 @@ while True:
             if head.dwType == RIM_TYPEMOUSE:
                 data = ri.data.mouse
                 if is_recording:
+
+                    #check if side button is pressed
+                    if data.union.structure.usButtonFlags == 0x0100:
+                        # trajectory end
+                        #print("positive_end", len(positive_trajectories))
+                        positive_trajectories.append((deepcopy(frames), deepcopy(keyboard_data), deepcopy(mouse_data), deepcopy(cursor_positions)))
+                        frames.clear()
+                        keyboard_data.clear()
+                        mouse_data.clear()
+                        cursor_positions.clear()
+
+                    elif data.union.structure.usButtonFlags == 0x0040:
+                        # trajectory end
+                        #print("negative_end", len(negative_trajectories))
+                        negative_trajectories.append((deepcopy(frames), deepcopy(keyboard_data), deepcopy(mouse_data), deepcopy(cursor_positions)))
+                        frames.clear()
+                        keyboard_data.clear()
+                        mouse_data.clear()
+                        cursor_positions.clear()
+
+
+
                     current_frame_mouse_data.append(data)
                 #print(data.lLastX, data.lLastY)
             elif head.dwType == RIM_TYPEKEYBOARD:
@@ -138,18 +172,19 @@ while True:
         is_recording = not is_recording
 
 
-        if not is_recording:           
-            with open("./val_range_data/data" + str(save_count) + ".pkl", "wb") as f:
-                pickle.dump((frames, keyboard_data, mouse_data, cursor_positions,reward), f)
-                current_frame_keyboard_data.clear()
-                current_frame_mouse_data.clear()
-                keyboard_data.clear()
-                mouse_data.clear() 
-                frames.clear()
-                cursor_positions.clear()
-                reward.clear()
-                time_count = 0  
-                save_count += 1                         
+        if not is_recording:     
+                  
+            # with open(f"{SAVE_PATH}data" + str(save_count) + ".pkl", "wb") as f:
+            #     pickle.dump((frames, keyboard_data, mouse_data, cursor_positions,reward), f)
+            current_frame_keyboard_data.clear()
+            current_frame_mouse_data.clear()
+            keyboard_data.clear()
+            mouse_data.clear() 
+            frames.clear()
+            cursor_positions.clear()
+            reward.clear()
+            time_count = 0  
+            save_count += 0                         
 
         print("Is Recording: ", is_recording, end="\r")
 
@@ -161,14 +196,7 @@ while True:
     if is_recording:
         time_count += 1/FPS
         
-        # if keyboard.is_pressed('ctrl + plus'):
-        #     reward.append(1)
-        # elif keyboard.is_pressed('ctrl + -'):
-        #     reward.append(-1)
-        # else:
-        #     reward.append(0)
-        
-        
+
         img = capture_screenshot()
         
         # mss capture screenshot with cursor
@@ -186,10 +214,10 @@ while True:
         current_frame_mouse_data.clear()
 
 
-        if time_count > 10*60:
+        if len(positive_trajectories) > 5:
             # have two buffers and then swap them when saving then thread the saving so recording can continue
-            with open("./val_range_data/data" + str(save_count) + ".pkl", "wb") as f:
-                pickle.dump((frames, keyboard_data, mouse_data, cursor_positions, reward), f)
+            with open(f"{SAVE_PATH}positive/data" + str(positive_save_count) + ".pkl", "wb") as f:
+                pickle.dump(positive_trajectories, f)
             
 
             cursor_positions.clear()
@@ -197,8 +225,25 @@ while True:
             keyboard_data.clear()
             mouse_data.clear()
             reward.clear()
+            positive_trajectories.clear()
             
-            save_count += 1
+            positive_save_count += 1
+            time_count = 0
+
+        if len(negative_trajectories) > 5:
+            # have two buffers and then swap them when saving then thread the saving so recording can continue
+            with open(f"{SAVE_PATH}negative/data" + str(negative_save_count) + ".pkl", "wb") as f:
+                pickle.dump(negative_trajectories, f)
+            
+
+            cursor_positions.clear()
+            frames.clear()
+            keyboard_data.clear()
+            mouse_data.clear()
+            reward.clear()
+            negative_trajectories.clear()
+            
+            negative_save_count += 1
             time_count = 0
 
         # save image in to lists
@@ -215,3 +260,5 @@ while True:
 
     fps = 1 / (time.time() - start_time - 0.0001)
     print("FPS: ", fps, " Is Recording: ", is_recording, end="\r")
+
+

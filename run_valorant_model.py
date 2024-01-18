@@ -98,11 +98,11 @@ class Net(nn.Module):
         return x
 # load state dict
 net = Net(efficientnet)
-net.load_state_dict(torch.load('./valorant_models/mouse_model_cont_2.pt'))
+net.load_state_dict(torch.load('./valorant_models/mouse_model_cont_3.pt'))
 
 print("ready")
 
-THRESHOLD = .5
+THRESHOLD = .09
 
 while True: 
     start_time = time.time()
@@ -120,17 +120,17 @@ while True:
 
 
     # if arrow up is pressed, increase threshold
-    if keyboard.is_pressed('up'):
-        move_mouse(0, -10)
+    # if keyboard.is_pressed('up'):
+    #     move_mouse(0, -10)
 
-    if keyboard.is_pressed('down'):
-        move_mouse(0, 10)
+    # if keyboard.is_pressed('down'):
+    #     move_mouse(0, 10)
     
-    if keyboard.is_pressed('left'):
-        move_mouse(-10, 0)
+    # if keyboard.is_pressed('left'):
+    #     move_mouse(-10, 0)
     
-    if keyboard.is_pressed('right'):
-        move_mouse(10, 0)
+    # if keyboard.is_pressed('right'):
+    #     move_mouse(10, 0)
 
     if is_recording:
         time_count += 1/FPS

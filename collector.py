@@ -5,13 +5,16 @@ from mss import mss
 import pickle
 import ctypes as cts
 import ctypes.wintypes as wts
-#from record_input import Recorder
 
 from winrecorder import Recorder
 import ctypes_wrappers as cws
 from winrecorder import wnd_proc, register_devices
 
+import pyaudiowpatch as pyaudio
+
 from copy import deepcopy
+
+from spectrogram_collector import SpectroCollector
 
 HWND_MESSAGE = -3
 
@@ -56,15 +59,17 @@ current_frame_keyboard_data = []
 mouse_data = []
 current_frame_mouse_data = []
 cursor_positions = []
+spectrograms = []
 reward = []
 
 
 time_count = 0
-save_count = 11 # implement detector to continue
+
+
+save_count = 2 # implement detector to continue
+
+
 frame_count = 0
-
-
-#recorder = Recorder(current_frame_keyboard_data, current_frame_mouse_data)
 
 
 wnd_cls = "SO049572093_RawInputWndClass"
@@ -84,8 +89,10 @@ register_devices(hwnd)
 msg = wts.MSG()
 pmsg = cts.byref(msg)
 
+spectro = SpectroCollector()
 
 while True: 
+    
     start_time = time.time()
 
     # reset msg
@@ -140,7 +147,8 @@ while True:
 
         if not is_recording:           
             with open("./val_range_data/data" + str(save_count) + ".pkl", "wb") as f:
-                pickle.dump((frames, keyboard_data, mouse_data, cursor_positions,reward), f)
+                pickle.dump((frames, keyboard_data, mouse_data, cursor_positions, spectrograms), f)
+                
                 current_frame_keyboard_data.clear()
                 current_frame_mouse_data.clear()
                 keyboard_data.clear()
@@ -148,6 +156,8 @@ while True:
                 frames.clear()
                 cursor_positions.clear()
                 reward.clear()
+                spectrograms.clear()
+                
                 time_count = 0  
                 save_count += 1                         
 
@@ -160,14 +170,7 @@ while True:
 
     if is_recording:
         time_count += 1/FPS
-        
-        # if keyboard.is_pressed('ctrl + plus'):
-        #     reward.append(1)
-        # elif keyboard.is_pressed('ctrl + -'):
-        #     reward.append(-1)
-        # else:
-        #     reward.append(0)
-        
+             
         
         img = capture_screenshot()
         
@@ -185,11 +188,12 @@ while True:
         mouse_data.append(deepcopy(current_frame_mouse_data))
         current_frame_mouse_data.clear()
 
+        spectrograms.append(spectro.get())
 
         if time_count > 10*60:
             # have two buffers and then swap them when saving then thread the saving so recording can continue
             with open("./val_range_data/data" + str(save_count) + ".pkl", "wb") as f:
-                pickle.dump((frames, keyboard_data, mouse_data, cursor_positions, reward), f)
+                pickle.dump((frames, keyboard_data, mouse_data, cursor_positions, spectrograms), f)
             
 
             cursor_positions.clear()
@@ -197,6 +201,7 @@ while True:
             keyboard_data.clear()
             mouse_data.clear()
             reward.clear()
+            spectrograms.clear()
             
             save_count += 1
             time_count = 0
@@ -210,7 +215,7 @@ while True:
         # grab mouse inputs
         
     
-    # sleep remaining time to make fps]
+    # # sleep remaining time to make fps]
     time.sleep(max(0, (1 / FPS) - (time.time() - start_time - 0.0001)))
 
     fps = 1 / (time.time() - start_time - 0.0001)

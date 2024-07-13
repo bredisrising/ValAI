@@ -13,12 +13,6 @@ filename = "loopback_record.wav"
 
 
 
-
-
-
-
-
-
 if __name__ == "__main__":
     with pyaudio.PyAudio() as p:
 

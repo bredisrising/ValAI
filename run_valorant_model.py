@@ -67,8 +67,6 @@ class Net(nn.Module):
 
         self.efficientnet = eff
 
-
-
         self.fc = nn.Sequential(
             nn.Flatten(),
             nn.Linear(20160, 128),
@@ -96,6 +94,9 @@ class Net(nn.Module):
         #stds = torch.clamp(self.logstds.exp(), 1e-3, 5)
 
         return x
+    
+
+    
 # load state dict
 net = Net(efficientnet)
 net.load_state_dict(torch.load('./valorant_models/mouse_model_cont_3.pt'))

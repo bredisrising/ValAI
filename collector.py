@@ -84,6 +84,8 @@ res = cws.RegisterClassEx(cts.byref(wcx))
 
 hwnd = cws.CreateWindowEx(0, wnd_cls, None, 0, 0, 0, 0, 0, 0, None, wcx.hInstance, None)
 
+print('created window')
+
 register_devices(hwnd)
 
 msg = wts.MSG()
@@ -100,7 +102,9 @@ while True:
     pmsg = cts.byref(msg)
 
     while cws.PeekMessage(pmsg, None, 0, 0, PM_REMOVE):
+        print('working')
         cws.TranslateMessage(pmsg)
+
         if msg.message == WM_INPUT:
             
             size = wts.UINT(0)
@@ -161,7 +165,7 @@ while True:
                 time_count = 0  
                 save_count += 1                         
 
-        print("Is Recording: ", is_recording, end="\r")
+        #print("Is Recording: ", is_recording, end="\r")
 
     elif not keyboard.is_pressed('ctrl + r'):
         is_record_pressed = False
@@ -219,4 +223,4 @@ while True:
     time.sleep(max(0, (1 / FPS) - (time.time() - start_time - 0.0001)))
 
     fps = 1 / (time.time() - start_time - 0.0001)
-    print("FPS: ", fps, " Is Recording: ", is_recording, end="\r")
+   # print("FPS: ", fps, " Is Recording: ", is_recording, end="\r")

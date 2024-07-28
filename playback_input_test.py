@@ -1,6 +1,6 @@
 import pickle
 import time
-from input_control import move_mouse, release_key, press_key, mouse_key
+from input_control_old import move_mouse, release_key, press_key, mouse_key
 import keyboard
 
 

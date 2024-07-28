@@ -149,7 +149,7 @@ while running and current_image_index < num_images:
 # torch.save(data[0], "./input.pt")
 # torch.save(data[1], "./label.pt")
 
-pickle.dump(mouse_labels, open("./mouse_wdwlabels.pkl", "wb"))
+pickle.dump(mouse_labels, open("./mouse_labels.pkl", "wb"))
 
 
 

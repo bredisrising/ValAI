@@ -4,7 +4,6 @@ import sys
 import time
 from copy import deepcopy
 
-
 import ctypes_wrappers as cws
 
 HWND_MESSAGE = -3

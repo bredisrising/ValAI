@@ -10,10 +10,10 @@ import torchvision
 import cv2
 import ctypes as cts
 import ctypes.wintypes as wts
-from winrecorder import Recorder
+from old_win_recorder import Recorder
 import ctypes_wrappers as cws
 import math
-from winrecorder import wnd_proc, register_devices
+from old_win_recorder import wnd_proc, register_devices
 
 HWND_MESSAGE = -3
 

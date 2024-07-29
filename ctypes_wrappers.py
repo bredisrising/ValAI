@@ -13,7 +13,6 @@ WNDPROC = cts.CFUNCTYPE(LRESULT, *wndproc_args)
 kernel32 = cts.WinDLL("Kernel32")
 user32 = cts.WinDLL("User32")
 
-
 def structure_to_string_method(self):
     ret = [f"{self.__class__.__name__} (size: {cts.sizeof(self.__class__)}) instance at 0x{id(self):016X}:"]
     for fn, _ in self._fields_:

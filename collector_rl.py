@@ -7,9 +7,9 @@ import ctypes as cts
 import ctypes.wintypes as wts
 #from record_input import Recorder
 
-from winrecorder import Recorder
+from old_win_recorder import Recorder
 import ctypes_wrappers as cws
-from winrecorder import wnd_proc, register_devices
+from old_win_recorder import wnd_proc, register_devices
 
 from copy import deepcopy
 

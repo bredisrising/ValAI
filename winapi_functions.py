@@ -13,6 +13,7 @@ register_class = user32["RegisterClassExW"]
 
 get_module_handle = kernel32["GetModuleHandleW"]
 register_raw_input_devices = user32["RegisterRawInputDevices"]
+get_raw_input_data = user32["GetRawInputData"]
 
 def_window_proc = user32["DefWindowProcW"]
 def_window_proc.argtypes = (wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM)
@@ -30,6 +31,68 @@ create_window.restype = wintypes.HWND
 
 WNDPROC_ARGTYPES = (wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM)
 WNDPROC_TYPE = ctypes.CFUNCTYPE(ctypes.c_ssize_t, *WNDPROC_ARGTYPES)
+
+class RAWINPUTHEADER(ctypes.Structure):
+    _fields_ = (
+        ('dwType', wintypes.DWORD),
+        ('dwSize', wintypes.DWORD),
+        ('hDevice', wintypes.HANDLE),
+        ('wParam', wintypes.WPARAM),
+    )
+
+class RAWMOUSEBUTTON(ctypes.Structure):
+    _fields_ = (
+        ('usButtonFlags', wintypes.USHORT),
+        ('usButtonData', wintypes.USHORT)
+    )
+
+class RAWMOUSEUNION(ctypes.Union):
+    _fields_ = (
+        ('ulButtons', wintypes.ULONG),
+        ('DUMMYSTRUCTNAME', RAWMOUSEBUTTON)
+    )
+
+class RAWMOUSE(ctypes.Structure):
+    _fields_ = (
+        ('usFlags', wintypes.DWORD),
+        ('DUMMYUNIONNAME', RAWMOUSEUNION),
+        ('ulRawButtons', wintypes.ULONG),
+        ('lLastX', wintypes.LONG),
+        ('lLastY', wintypes.LONG),
+        ('ulExtraInformation', wintypes.ULONG)
+    )  
+
+class RAWKEYBOARD(ctypes.Structure):
+    _fields_ = (
+        ('MakeCode', wintypes.USHORT),
+        ('Flags', wintypes.USHORT),
+        ('Reserved', wintypes.USHORT),
+        ('VKey', wintypes.USHORT),
+        ('Message', wintypes.UINT),
+        ('ExtraInformation', wintypes.ULONG)
+    ) 
+
+class RAWHID(ctypes.Structure):
+    _fields_ = (
+        ('dwSizeHid', wintypes.DWORD),
+        ('dwCount', wintypes.DWORD),
+        ('bRawData', wintypes.BYTE * 1)
+    )
+
+class RAWINPUTUNION(ctypes.Union):
+    _fields_ = (
+        ('mouse', RAWMOUSE),
+        ('keyboard', RAWKEYBOARD),
+        ('hid', RAWHID)
+    )
+
+class RAWINPUT(ctypes.Structure):
+    _fields_ = (
+        ('header', RAWINPUTHEADER),
+        ('data', RAWINPUTUNION)
+    )
+
+PRAWINPUT = ctypes.POINTER(RAWINPUT)
 
 class RAWINPUTDEVICE(ctypes.Structure):
     _fields_ = (

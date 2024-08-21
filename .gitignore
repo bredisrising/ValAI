@@ -11,6 +11,7 @@
 /slither_concept/
 /.VSCodeCounter/
 /model/
+/trained/
 
 *.wav
 *.pkl

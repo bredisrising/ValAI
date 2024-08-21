@@ -1,4 +1,5 @@
 import interception
+import time
 
 def init():
     interception.auto_capture_devices(keyboard=True, mouse=True)
@@ -17,6 +18,11 @@ def press_mouse(button):
 
 def release_mouse(button):
     interception.mouse_up(button)
+
+def send_mouse(button_state): # button state from rawmouse directly
+    stroke = interception.MouseStroke(button_state, interception.MouseFlag.MOUSE_MOVE_ABSOLUTE, 0, 0, 0, 0)
+    interception.interception.send_mouse(stroke)
+    time.sleep(0.03)
 
 if __name__ == '__main__':
     import time
